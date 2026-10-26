@@ -1,0 +1,12 @@
+{
+  "app": {
+    "name": "Jopoi",
+    "tagline": "Donaciones que llegan a quien las necesita"
+  },
+  "home": {
+    "title": "Doná lo que ya no usás",
+    "description": "Registrá tu donación, armala siguiendo las indicaciones y seguila hasta que llegue a su destino.",
+    "cta": "Quiero donar",
+    "comingSoon": "Muy pronto"
+  }
+}
