@@ -1,10 +1,32 @@
+# Dependencies
 node_modules/
+.pnp
+.pnp.*
+
+# Next.js
 .next/
 out/
+build/
+next-env.d.ts
+*.tsbuildinfo
+
+# Tests
 coverage/
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Environment
 .env
 .env*.local
-.vercel
+!.env.example
+
+# Supabase / Vercel
 supabase/.temp/
+supabase/.branches/
+.vercel
+
+# Misc
 .DS_Store
+*.pem
 *.log
