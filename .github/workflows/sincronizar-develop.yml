@@ -1,0 +1,48 @@
+name: Sincronizar main a develop
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: sincronizar-develop
+  cancel-in-progress: false
+
+jobs:
+  abrir-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Abrir PR de main a develop
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! git ls-remote --exit-code --heads origin develop > /dev/null; then
+            echo "No existe la rama develop todavía."
+            exit 0
+          fi
+          git fetch origin develop
+
+          if [ -z "$(git rev-list origin/develop..origin/main)" ]; then
+            echo "develop ya tiene todo lo de main."
+            exit 0
+          fi
+
+          existente=$(gh pr list --base develop --head main --state open --json number --jq '.[0].number')
+          if [ -n "$existente" ]; then
+            echo "Ya hay una PR abierta: #$existente"
+            exit 0
+          fi
+
+          gh pr create \
+            --base develop \
+            --head main \
+            --title "Sincronizar main a develop ($(git rev-parse --short origin/main))" \
+            --body "PR automática después de un merge a \`main\`. Mergear con **merge commit** (no squash) para que las ramas queden sincronizadas."

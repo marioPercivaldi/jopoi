@@ -1,0 +1,38 @@
+name: Crear tag de versión
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    if: >-
+      github.event.pull_request.merged == true &&
+      (startsWith(github.event.pull_request.head.ref, 'release/') ||
+       startsWith(github.event.pull_request.head.ref, 'hotfix/'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Crear el tag desde el nombre de la rama
+        env:
+          RAMA: ${{ github.event.pull_request.head.ref }}
+        run: |
+          version="${RAMA#*/}"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "La rama $RAMA no tiene el formato x.y.z; no se crea tag."
+            exit 0
+          fi
+          tag="v$version"
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" > /dev/null; then
+            echo "El tag $tag ya existe."
+            exit 0
+          fi
+          git tag "$tag"
+          git push origin "$tag"
